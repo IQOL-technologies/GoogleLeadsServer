@@ -1,7 +1,14 @@
 const DEFAULT_AGENT_NAME = "unknown";
 const DEFAULT_AGENT_ID = "unknown";
 
+function normalizePropertyName(value){
+  if (!value || !value.trim()) {
+    return "unknown";
+  }
 
+  return value.toLowerCase().replace(/-/g, " ").replace(/\s+/g, " ").trim();
+}
+3
 async function checkDuplicateLead(
   db,
   collectionName,
@@ -96,7 +103,7 @@ async function transformData(leads, db) {
     const row = leads[idx];
     const phone = row.phoneNumber;
     const name = row.name || "";
-    const projectName = row.projectName || "";
+    const projectName = normalizePropertyName(row.projectName);
     const platform = "google";
 
     const agentName = row.currentAgent || DEFAULT_AGENT_NAME;
