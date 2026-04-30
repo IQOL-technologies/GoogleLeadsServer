@@ -9,6 +9,22 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
+    env:
+      GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.DEPLOY_GAE_SA }}
+      FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
+      FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+      PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+      CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+      CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+      CUSTOMER_ID: ${{ secrets.GOOGLE_CUSTOMER_ID }}
+      DEVELOPER_TOKEN: ${{ secrets.GOOGLE_DEVELOPER_TOKEN }}
+      REFRESH_TOKEN: ${{ secrets.GOOGLE_REFRESH_TOKEN }}
+      META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
+      META_APP_SECRET: ${{ secrets.META_APP_SECRET }}
+      META_APP_ID: ${{ secrets.META_APP_ID }}
+      META_AD_ACCOUNT_ID: ${{ secrets.META_AD_ACCOUNT_ID }}
+      META_AD_ACCOUNT_ID2: ${{ secrets.META_AD_ACCOUNT_ID2 }}
     
     steps:
     - name: Checkout code
@@ -36,6 +52,10 @@ jobs:
       uses: google-github-actions/auth@v2
       with:
         credentials_json: ${{ secrets.DEPLOY_GAE_SA }}
+    
+    - name: Generate app.yaml
+      run: |
+        cat app.yaml.template | envsubst > app.yaml
         
     - name: Set up Google Cloud SDK
       uses: google-github-actions/setup-gcloud@v2
@@ -45,9 +65,7 @@ jobs:
       
     - name: Deploy to App Engine
       run: |
-        gcloud app deploy --quiet --promote
-      env:
-        GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.DEPLOY_GAE_SA }}
+        gcloud app deploy app.yaml --quiet --promote
         
     - name: Get deployment URL
       run: |

@@ -1,28 +1,19 @@
+import { getNextId } from "../utils/idGenerator.js";
+import { normalizePropertyName, getPropertyIdByName } from "../utils/propertyUtils.js";
+
 const DEFAULT_AGENT_NAME = "unknown";
 const DEFAULT_AGENT_ID = "unknown";
 
-function normalizePropertyName(value){
-  if (!value || !value.trim()) {
-    return "unknown";
-  }
-
-  return value.toLowerCase().replace(/-/g, " ").replace(/\s+/g, " ").trim();
-}
-3
-async function checkDuplicateLead(
-  db,
-  collectionName,
-  phoneNumber,
-  propertyName
-) {
+async function checkDuplicateLead(db, phoneNumber, propertyName) {
   const querySnapshot = await db
-    .collection(collectionName)
+    .collection("canvashomesEnquiriesV2")
     .where("phoneNumber", "==", phoneNumber)
     .where("propertyName", "==", propertyName)
     .get();
 
+  // Also check lowercase just in case
   const querySnapshot1 = await db
-    .collection(collectionName)
+    .collection("canvashomesEnquiriesV2")
     .where("phoneNumber", "==", phoneNumber)
     .where("propertyName", "==", propertyName.toLowerCase())
     .get();
@@ -36,6 +27,7 @@ async function checkExistingUser(db, phoneNumber) {
     .where("phoneNumber", "==", phoneNumber)
     .limit(1)
     .get();
+    
   if (!userQuery.empty) {
     const userDoc = userQuery.docs[0];
     return userDoc.data().userId;
@@ -43,64 +35,11 @@ async function checkExistingUser(db, phoneNumber) {
   return null;
 }
 
-async function getNextId(counterDocPath, prefix, db, paddingLength = 3) {
-  const counterRef = db.doc(counterDocPath);
-
-  return await db.runTransaction(async (transaction) => {
-    const counterDoc = await transaction.get(counterRef);
-    let currentCount = 0;
-
-    if (counterDoc.exists) {
-      currentCount = counterDoc.data().count || 0;
-    }
-
-    const newCount = currentCount + 1;
-    const newId = `${prefix}${newCount
-      .toString()
-      .padStart(paddingLength, "0")}`;
-
-    transaction.set(counterRef, { count: newCount }, { merge: true });
-
-    return newId;
-  });
-}
-
-async function getPropertyIdByName(propertyName, db) {
-  if (!propertyName) {
-    console.warn("No propertyName provided");
-    return null;
-  }
-
-  try {
-    const propertyQuery = await db
-      .collection("restackPreLaunchProperties")
-      .where("projectName", "==", propertyName)
-      .limit(1)
-      .get();
-
-    if (propertyQuery.empty) {
-      console.warn(`Property not found with name: ${propertyName}`);
-      return null;
-    }
-
-    const propertyDoc = propertyQuery.docs[0];
-    const propertyId = propertyDoc.id;
-    console.log(
-      `Found propertyId: ${propertyId} for propertyName: ${propertyName}`
-    );
-    return propertyId;
-  } catch (error) {
-    console.error(`Error fetching propertyId for ${propertyName}:`, error);
-    return null;
-  }
-}
-
-async function transformData(leads, db) {
+async function processLeads(leads, db) {
   const now = Math.floor(Date.now() / 1000);
-  const leadsData = [];
+  const results = [];
 
-  for (let idx = 0; idx < leads.length; idx++) {
-    const row = leads[idx];
+  for (const row of leads) {
     const phone = row.phoneNumber;
     const name = row.name || "";
     const projectName = normalizePropertyName(row.projectName);
@@ -109,38 +48,29 @@ async function transformData(leads, db) {
     const agentName = row.currentAgent || DEFAULT_AGENT_NAME;
     const agentId = row.currentAgentId || DEFAULT_AGENT_ID;
 
-    const isDuplicate = await checkDuplicateLead(
-      db,
-      "canvashomesEnquiriesV2",
-      phone,
-      projectName
-    );
+    const isDuplicate = await checkDuplicateLead(db, phone, projectName);
 
     if (isDuplicate) {
-      console.log("duplicate lead found!!!! skip it");
+      console.log(`Duplicate lead found for ${phone} and ${projectName}, skipping.`);
       continue;
     }
 
-    // Generate userId dynamically
+    // Handle User
     let userId = await checkExistingUser(db, phone);
+    let userAlreadyExists = false;
+    
     if (userId) {
-      console.log(
-        `User already exists with userId: ${userId}, skipping user creation.`
-      );
-      userData.alreadyExists = true;
+      console.log(`User already exists with userId: ${userId}`);
+      userAlreadyExists = true;
     } else {
       userId = await getNextId("canvashomesAdmin/lastUser", "user", db);
-      console.log(`Generated userId: ${userId}`);
+      console.log(`Generated new userId: ${userId}`);
     }
 
-    // Generate enquiryId dynamically
-    const enquiryId = await getNextId(
-      "canvashomesAdmin/lastEnquiry",
-      "enq",
-      db
-    );
-    console.log(`Generated enquiryId: ${enquiryId}`);
-    // Fetch propertyId using propertyName
+    // Generate enquiryId
+    const enquiryId = await getNextId("canvashomesAdmin/lastEnquiry", "enq", db);
+    
+    // Fetch propertyId
     const projectId = await getPropertyIdByName(projectName, db);
 
     const userData = {
@@ -152,8 +82,10 @@ async function transformData(leads, db) {
       added: now,
       lastModified: now,
       label: "call",
+      userAlreadyExists
     };
-    userData.enquiryData = {
+
+    const enquiryData = {
       enquiryId: enquiryId,
       userId: userId,
       agentId: agentId,
@@ -162,7 +94,7 @@ async function transformData(leads, db) {
       propertyId: projectId || null,
       rootPropertyName: null,
       rootPropertyId: null,
-      rootPropertySource:null,
+      rootPropertySource: null,
       name: name.trim(),
       phoneNumber: phone || null,
       label: "call", 
@@ -198,13 +130,11 @@ async function transformData(leads, db) {
       added: now,
       lastModified: now,
     };
-    leadsData.push(userData);
+
+    results.push({ userData, enquiryData });
   }
 
-  console.log("leadsData before return:", leadsData);
-  return leadsData;
+  return results;
 }
 
-export { transformData };
-
-
+export { processLeads };
