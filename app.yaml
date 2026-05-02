@@ -1,4 +1,4 @@
-runtime: nodejs20
+runtime: nodejs22
 service: google-campaign-leads-service
 
 env_variables:
