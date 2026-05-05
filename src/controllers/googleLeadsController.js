@@ -1,5 +1,6 @@
 import { processLeads } from "../services/googleLeadsService.js";
 import { db } from "../config/firebase.js";
+import { sendErrorEmail } from "../utils/emailUtils.js";
 
 const handleMultipleCampaignData = async (req, res) => {
   try {
@@ -45,6 +46,12 @@ const handleMultipleCampaignData = async (req, res) => {
       processedResults = await processLeads(leads, db);
     } catch (error) {
       console.error("Processing error:", error);
+      
+      // Alert Admin via Email
+      sendErrorEmail("Lead Processing Failure (Google)", error.message, {
+        payload: req.body
+      }).catch(e => console.error("Failed to send error email", e));
+
       return res.status(500).json({
         error: "Data processing failed",
       });
@@ -68,6 +75,12 @@ const handleMultipleCampaignData = async (req, res) => {
     });
   } catch (error) {
     console.error("Request error:", error);
+
+    // Alert Admin via Email
+    sendErrorEmail("Critical Request Error (Google)", error.message, {
+      payload: req.body
+    }).catch(e => console.error("Failed to send error email", e));
+
     return res.status(500).json({
       error: "Internal server error",
     });

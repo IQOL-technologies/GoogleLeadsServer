@@ -8,11 +8,10 @@ async function initializeFirebase() {
 
   try {
     // Use default credentials (BEST for App Engine)
-    const app = admin.initializeApp(
-      {
-        credential: admin.credential.applicationDefault(),
-      }
-    );
+    const app = admin.initializeApp({
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      credential: admin.credential.applicationDefault(),
+    });
 
     db = admin.firestore(app);
 

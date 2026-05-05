@@ -1,7 +1,9 @@
 import express from "express";
 import { handleMultipleCampaignData } from "../controllers/googleLeadsController.js";
 import { getMetaLeads } from "../controllers/metaLeadsController.js";
+import { recoverLeads } from "../controllers/recoveryController.js";
 import { firebaseInitialized } from "../config/firebase.js";
+import { logLeadRequest } from "../middleware/dlpMiddleware.js";
 
 const router = express.Router();
 
@@ -25,9 +27,17 @@ router.get("/health", (req, res) => {
 });
 
 // Google Leads Route
-router.post("/handleMultipleCampaignData", checkFirebaseInit, handleMultipleCampaignData);
+router.post(
+  "/handleMultipleCampaignData",
+  checkFirebaseInit,
+  logLeadRequest("google"),
+  handleMultipleCampaignData
+);
 
 // Meta Leads Route
-router.get("/meta-leads", checkFirebaseInit, getMetaLeads);
+router.get("/meta-leads", checkFirebaseInit, logLeadRequest("meta-trigger"), getMetaLeads);
+
+// Recovery Route - For re-processing failed leads from GCS logs
+router.post("/admin/recover-leads", checkFirebaseInit, recoverLeads);
 
 export default router;

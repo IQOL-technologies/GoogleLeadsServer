@@ -35,8 +35,8 @@ async function checkExistingUser(db, phoneNumber) {
   return null;
 }
 
-async function processLeads(leads, db) {
-  const now = Math.floor(Date.now() / 1000);
+async function processLeads(leads, db, forcedTimestamp = null) {
+  const now = forcedTimestamp || Math.floor(Date.now() / 1000);
   const results = [];
 
   for (const row of leads) {

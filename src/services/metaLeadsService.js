@@ -2,6 +2,7 @@ import axios from "axios";
 import { getNextId } from "../utils/idGenerator.js";
 import { normalizePropertyName, getPropertyIdByName } from "../utils/propertyUtils.js";
 import { accounts as configAccounts } from "../config/metaAds.js";
+import { saveRequestToGCS } from "../utils/storageUtils.js";
 
 async function fetchAllMetaAds(adAccountId, accessToken, params = {}) {
   if (!adAccountId || !accessToken) {
@@ -194,6 +195,13 @@ async function fetchAndStoreMetaLeads(params = {}, db) {
       );
       const leads = leadsData.data || [];
 
+      // DLP: Log the raw fetched leads to GCS
+      if (leads.length > 0) {
+        saveRequestToGCS(leads, `meta-${account.adAccountId}`).catch(err => {
+          console.error("DLP Error: Failed to log Meta leads to GCS:", err);
+        });
+      }
+
       for (const lead of leads) {
         const leadId = lead.id;
         if (!leadId) continue;
@@ -245,7 +253,10 @@ async function fetchAndStoreMetaLeads(params = {}, db) {
 }
 
 async function transformMetaLeadToUser(metaLead, userId) {
-  const timestamp = Math.floor(Date.now() / 1000);
+  const timestamp = metaLead.created_time 
+    ? Math.floor(new Date(metaLead.created_time).getTime() / 1000)
+    : Math.floor(Date.now() / 1000);
+    
   return {
     userId: userId,
     metaAccountId: metaLead.ad_account_id,
@@ -274,7 +285,10 @@ async function transformMetaLeadToUser(metaLead, userId) {
 }
 
 async function transformMetaLeadToEnquiry(metaLead, userId, enquiryId, propertyName, propertyId = null) {
-  const timestamp = Math.floor(Date.now() / 1000);
+  const timestamp = metaLead.created_time 
+    ? Math.floor(new Date(metaLead.created_time).getTime() / 1000)
+    : Math.floor(Date.now() / 1000);
+
   return {
     enquiryId: enquiryId,
     userId: userId,
