@@ -21,7 +21,7 @@ jobs:
       CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
       CUSTOMER_ID: ${{ secrets.CUSTOMER_ID }}
       DEVELOPER_TOKEN: ${{ secrets.DEVELOPER_TOKEN }}
-      REFRESH_TOKEN: ${{ secrets.REFRESH_TOKEN }}
+      REFRESH_TOKEN: ${{ secrets.PREFRESH_TOKEN }}
       META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
       META_APP_SECRET: ${{ secrets.META_APP_SECRET }}
       META_APP_ID: ${{ secrets.META_APP_ID }}
