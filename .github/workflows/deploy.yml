@@ -17,11 +17,6 @@ jobs:
       FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
       FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
       PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-      CLIENT_ID: ${{ secrets.CLIENT_ID }}
-      CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-      CUSTOMER_ID: ${{ secrets.CUSTOMER_ID }}
-      DEVELOPER_TOKEN: ${{ secrets.DEVELOPER_TOKEN }}
-      REFRESH_TOKEN: ${{ secrets.PREFRESH_TOKEN }}
       META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
       META_APP_SECRET: ${{ secrets.META_APP_SECRET }}
       META_APP_ID: ${{ secrets.META_APP_ID }}
