@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      NODE_ENV: production
+      NODE_ENV: ${{ secrets.NODE_ENV }}
       PORT: ${{ secrets.PORT }}
       GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
       FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
@@ -75,7 +75,7 @@ jobs:
       
     - name: Deploy to App Engine
       run: |
-        gcloud app deploy app.yaml --quiet --promote
+        gcloud app deploy app.yaml --quiet
         
     - name: Get deployment URL
       run: |
