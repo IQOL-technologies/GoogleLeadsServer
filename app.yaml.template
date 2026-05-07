@@ -6,11 +6,6 @@ automatic_scaling:
   min_instances: 0
   max_instances: 10
 
-resources:
-  cpu: 1
-  memory_gb: 0.5
-  disk_size_gb: 10
-
 env_variables:
   NODE_ENV: $NODE_ENV
   GOOGLE_SERVICE_ACCOUNT_KEY: GOOGLE_SERVICE_ACCOUNT_KEY
@@ -21,7 +16,6 @@ env_variables:
   CLIENT_SECRET: $CLIENT_SECRET
   CUSTOMER_ID: $CUSTOMER_ID
   DEVELOPER_TOKEN: $DEVELOPER_TOKEN
-  REFRESH_TOKEN: $REFRESH_TOKEN
   META_ACCESS_TOKEN: $META_ACCESS_TOKEN
   META_APP_SECRET: $META_APP_SECRET
   META_APP_ID: $META_APP_ID
