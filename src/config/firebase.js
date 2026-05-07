@@ -9,7 +9,6 @@ async function initializeFirebase() {
   try {
     // Use default credentials (BEST for App Engine)
     const app = admin.initializeApp({
-      projectId: process.env.FIREBASE_PROJECT_ID,
       credential: admin.credential.applicationDefault(),
     });
 

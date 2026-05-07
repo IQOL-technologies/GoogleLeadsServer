@@ -35,7 +35,7 @@ router.post(
 );
 
 // Meta Leads Route
-router.get("/meta-leads", checkFirebaseInit, logLeadRequest("meta-trigger"), getMetaLeads);
+router.get("/meta-leads", checkFirebaseInit, getMetaLeads);
 
 // Recovery Route - For re-processing failed leads from GCS logs
 router.post("/admin/recover-leads", checkFirebaseInit, recoverLeads);

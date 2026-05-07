@@ -1,10 +1,12 @@
 import { Storage } from "@google-cloud/storage";
 import { v4 as uuidv4 } from "uuid";
 import { sendErrorEmail } from "./emailUtils.js";
+import {env} from "../config/env.js";
 
 const storage = new Storage();
 // Fallback bucket name for convenience, but should be set in env
-const BUCKET_NAME = process.env.GCS_LOGS_BUCKET_NAME || "google-leads-dlp-logs";
+const BUCKET_NAME = env.GCS_LOGS_BUCKET_NAME || "google-leads-dlp-logs";
+
 
 /**
  * Saves a payload (JSON) to Google Cloud Storage for DLP.

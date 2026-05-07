@@ -1,6 +1,7 @@
 import { listGCSLogs, readGCSLog } from "../utils/storageUtils.js";
 import { processLeads } from "../services/googleLeadsService.js";
 import { db } from "../config/firebase.js";
+import {env} from "../config/env.js";
 
 /**
  * Controller to manually recover and re-process leads from GCS logs.
@@ -9,7 +10,7 @@ const recoverLeads = async (req, res) => {
   const { source, date, secret } = req.body;
 
   // Security check: Ensure only authorized users can trigger recovery
-  const RECOVERY_SECRET = process.env.RECOVERY_SECRET;
+  const RECOVERY_SECRET = env.RECOVERY_SECRET;
   if (secret !== RECOVERY_SECRET) {
     return res.status(403).json({ error: "Unauthorized: Invalid recovery secret." });
   }

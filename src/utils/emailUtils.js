@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import {env} from "../config/env.js";
 
 /**
  * Sends an error notification email.
@@ -9,18 +10,16 @@ import nodemailer from "nodemailer";
 async function sendErrorEmail(subject, message, context = {}) {
   try {
     const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: parseInt(process.env.SMTP_PORT || "587"),
-      secure: process.env.SMTP_SECURE === "true", // true for 465, false for other ports
+      service: "gmail",
       auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
+        user: env.SMTP_USER,
+        pass: env.SMTP_PASS,
       },
     });
 
     const mailOptions = {
-      from: `"Lead Service Alerts" <${process.env.SMTP_USER}>`,
-      to: process.env.ADMIN_EMAIL,
+      from: `"Lead Service Alerts" <${env.SMTP_USER}>`,
+      to: env.ADMIN_EMAIL,
       subject: `[ALERT] ${subject}`,
       text: `
         Error Alert: ${subject}

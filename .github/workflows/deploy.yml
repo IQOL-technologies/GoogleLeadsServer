@@ -12,7 +12,8 @@ jobs:
 
     env:
       NODE_ENV: production
-      GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.DEPLOY_GAE_SA }}
+      PORT: ${{ secrets.PORT }}
+      GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
       FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
       FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
       PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
@@ -26,6 +27,14 @@ jobs:
       META_APP_ID: ${{ secrets.META_APP_ID }}
       META_AD_ACCOUNT_ID: ${{ secrets.META_AD_ACCOUNT_ID }}
       META_AD_ACCOUNT_ID2: ${{ secrets.META_AD_ACCOUNT_ID2 }}
+      GCS_LOGS_BUCKET_NAME: ${{ secrets.GCS_LOGS_BUCKET_NAME }}
+      RECOVERY_SECRET: ${{ secrets.RECOVERY_SECRET }}
+      SMTP_HOST: ${{ secrets.SMTP_HOST }}
+      SMTP_PORT: ${{ secrets.SMTP_PORT }}
+      SMTP_USER: ${{ secrets.SMTP_USER }}
+      SMTP_PASS: ${{ secrets.SMTP_PASS }}
+      SMTP_SECURE: ${{ secrets.SMTP_SECURE }}
+      ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
     
     steps:
     - name: Checkout code
@@ -52,7 +61,7 @@ jobs:
     - name: Authenticate with Google Cloud
       uses: google-github-actions/auth@v2
       with:
-        credentials_json: ${{ secrets.DEPLOY_GAE_SA }}
+        credentials_json: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
     
     - name: Generate app.yaml
       run: |
