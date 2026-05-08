@@ -129,6 +129,7 @@ async function processLeads(leads, db, forcedTimestamp = null) {
       state: "fresh",
       added: now,
       lastModified: now,
+      dataSource: "api",
     };
 
     results.push({ userData, enquiryData });

@@ -334,6 +334,7 @@ async function transformMetaLeadToEnquiry(metaLead, userId, enquiryId, propertyN
     state: "fresh",
     added: timestamp,
     lastModified: timestamp,
+    dataSource: "api",
     utmDetails: {
       campaign: metaLead.campaign_name ?? null,
       campaignId: metaLead.campaign_id ?? null,
