@@ -193,6 +193,7 @@ async function transformData(leads, db) {
       rnr: false,
       rnrCount: 0,
       documents: [],
+      dataSource: 'api',
       requirements: [],
       state: "fresh",
       added: now,
